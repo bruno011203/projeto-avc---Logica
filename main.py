@@ -4,7 +4,8 @@
 # Cada modulo e importado dentro de um try: enquanto o arquivo do integrante
 # ainda nao estiver na pasta, o modulo fica como None e aparece no menu como
 # "(em desenvolvimento)". Quando o arquivo chegar, ele e liberado sozinho,
-# sem precisar mexer neste arquivo.
+# sem precisar mexer neste arquivo. Se o arquivo tiver algum erro (por exemplo,
+# de sintaxe), o sistema avisa na abertura e abre mesmo assim, sem esse modulo.
 
 from utils import cabecalho, mensagem_erro, mensagem_ok, pausar, ler_inteiro
 
@@ -12,30 +13,48 @@ try:
     import produtos
 except ImportError:
     produtos = None
+except Exception as erro:
+    mensagem_erro("produtos.py tem um erro e foi desligado: " + str(erro))
+    produtos = None
 
 try:
     import clientes
 except ImportError:
+    clientes = None
+except Exception as erro:
+    mensagem_erro("clientes.py tem um erro e foi desligado: " + str(erro))
     clientes = None
 
 try:
     import estoque
 except ImportError:
     estoque = None
+except Exception as erro:
+    mensagem_erro("estoque.py tem um erro e foi desligado: " + str(erro))
+    estoque = None
 
 try:
     import pedidos
 except ImportError:
+    pedidos = None
+except Exception as erro:
+    mensagem_erro("pedidos.py tem um erro e foi desligado: " + str(erro))
     pedidos = None
 
 try:
     import fila
 except ImportError:
     fila = None
+except Exception as erro:
+    mensagem_erro("fila.py tem um erro e foi desligado: " + str(erro))
+    fila = None
 
 try:
     import relatorios
 except ImportError:
+    relatorios = None
+except Exception as erro:
+    mensagem_erro("relatorios.py tem um erro e foi desligado: " + str(erro))
     relatorios = None
 
 

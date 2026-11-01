@@ -76,12 +76,13 @@ def buscar_pedido(numero):
 
 def cancelar_pedido(numero):
     """Muda o status do pedido para 'cancelado'.
+    So cancela pedido 'aguardando' ou 'na fila' (se estiver na fila, sai dela).
     Retorna True se cancelou, False se nao foi possivel."""
     pedido = buscar_pedido(numero)
     if pedido is None:
         return False
 
-    if pedido["status"] != "aguardando":
+    if pedido["status"] not in ["aguardando", "na fila"]:
         return False
 
     pedido["status"] = "cancelado"
@@ -171,7 +172,7 @@ def tela_cancelar_pedido():
     if cancelar_pedido(numero):
         mensagem_ok("Pedido " + str(numero) + " cancelado.")
     else:
-        mensagem_erro("Nao foi possivel cancelar. Confira se o pedido existe e esta aguardando.")
+        mensagem_erro("Nao foi possivel cancelar. Confira se o pedido existe e ainda nao foi separado.")
     pausar()
 
 
