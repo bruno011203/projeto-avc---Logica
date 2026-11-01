@@ -41,6 +41,30 @@ def nome_do_produto(codigo):
     return "Produto nao encontrado"
 
 
+def buscar_produto_por_codigo(codigo):
+    """Procura um produto pelo codigo. Devolve o produto ou None."""
+    for produto in produtos:
+        if produto["codigo"] == codigo:
+            return produto
+    return None
+
+
+def itens_sem_estoque(pedido):
+    """Confere se ha saldo para todos os itens do pedido.
+    Devolve uma lista de textos com o que falta (lista vazia = tem tudo)."""
+    faltando = []
+    for item in pedido["itens"]:
+        produto = buscar_produto_por_codigo(item["codigo"])
+        if produto is None:
+            faltando.append("produto " + str(item["codigo"]) + " nao existe mais no cadastro")
+        elif produto["quantidade"] < item["qtd"]:
+            falta = item["qtd"] - produto["quantidade"]
+            faltando.append(produto["nome"] + ": pedido " + str(item["qtd"])
+                            + ", em estoque " + str(produto["quantidade"])
+                            + " (faltam " + str(falta) + ")")
+    return faltando
+
+
 # ---------------------------------------------------------------
 # FUNCOES PRINCIPAIS (uma para cada opcao do menu)
 # ---------------------------------------------------------------
@@ -72,24 +96,47 @@ def adicionar_na_fila():
 
 
 def chamar_proximo():
-    """DEQUEUE: tira o pedido do INICIO da fila para ser separado."""
+    """DEQUEUE: tira o pedido do INICIO da fila para ser separado.
+    Antes de tirar, confere o estoque. Se faltar algum produto, o pedido
+    continua no inicio da fila e nada e descontado. Se tiver tudo,
+    os itens sao descontados do estoque."""
     cabecalho("Chamar proximo da fila")
 
     if len(fila_separacao) == 0:
         mensagem_erro("A fila esta vazia. Nao ha pedidos para separar.")
         return
 
-    numero = fila_separacao.pop(0)     # sai do inicio da fila
+    numero = fila_separacao[0]         # olha o primeiro sem tirar ainda
     pedido = buscar_pedido(numero)
+
+    faltando = itens_sem_estoque(pedido)
+    if len(faltando) > 0:
+        mensagem_erro("Estoque insuficiente para separar o pedido " + str(numero) + ":")
+        for texto in faltando:
+            print("  - " + texto)
+        print("O pedido continua no inicio da fila. De entrada no estoque e chame de novo.")
+        return
+
+    fila_separacao.pop(0)              # sai do inicio da fila
     pedido["status"] = "separado"
 
     print("Pedido a separar: " + str(numero))
     print("Cliente: " + nome_do_cliente(pedido["cliente"]))
     print("Itens:")
     for item in pedido["itens"]:
-        print("  - " + str(item["qtd"]) + " x " + nome_do_produto(item["codigo"]))
+        produto = buscar_produto_por_codigo(item["codigo"])
+        produto["quantidade"] = produto["quantidade"] - item["qtd"]   # baixa no estoque
+        print("  - " + str(item["qtd"]) + " x " + produto["nome"]
+              + " (restam " + str(produto["quantidade"]) + ")")
 
-    mensagem_ok("Pedido " + str(numero) + " marcado como separado.")
+    mensagem_ok("Pedido " + str(numero) + " marcado como separado e baixado do estoque.")
+
+    for item in pedido["itens"]:
+        produto = buscar_produto_por_codigo(item["codigo"])
+        if produto["quantidade"] < produto["estoque_minimo"]:
+            print("[ALERTA] " + produto["nome"] + " ficou abaixo do minimo ("
+                  + str(produto["quantidade"]) + " de "
+                  + str(produto["estoque_minimo"]) + ").")
 
 
 def visualizar_fila():
