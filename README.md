@@ -18,21 +18,43 @@ liberada sozinha — não é preciso editar o `main.py`.
 
 ## Arquivos
 
-| Nº | Arquivo         | Responsabilidade                                   |
-|----|-----------------|----------------------------------------------------|
-| —  | `dados.py`      | Listas compartilhadas (produtos, clientes, pedidos, fila) |
-| —  | `utils.py`      | Funções de tela e leitura de dados com tratamento de erro |
-| 1  | `main.py`       | Menu principal e integração dos módulos            |
-| 2  | `estoque.py`    | Entrada, saída e alerta de estoque mínimo          |
-| 3  | `pedidos.py`    | Cadastro e manutenção de pedidos                   |
-| 4  | `relatorios.py` | Relatórios gerenciais (só lê os dados)             |
-| 5  | `fila.py`       | Fila FIFO de separação de pedidos                  |
-| 6  | `produtos.py`   | Cadastro de produtos (CRUD)                        |
-| 7  | `clientes.py`   | Cadastro de clientes (CRUD)                        |
+| Nº | Arquivo         | Autor             | Responsabilidade                                   |
+|----|-----------------|-------------------|----------------------------------------------------|
+| —  | `dados.py`      | Grupo             | Listas compartilhadas (produtos, clientes, pedidos, fila) |
+| —  | `utils.py`      | Grupo             | Funções de tela e leitura de dados com tratamento de erro |
+| 1  | `main.py`       | Bruno             | Menu principal e integração dos módulos            |
+| 2  | `estoque.py`    | João Vitor Campos | Entrada, saída e alerta de estoque mínimo          |
+| 3  | `pedidos.py`    | Vitor Rodrigues   | Cadastro e manutenção de pedidos                   |
+| 4  | `relatorios.py` | NiihTerto         | Relatórios gerenciais (só lê os dados)             |
+| 5  | `fila.py`       | Enzo              | Fila FIFO de separação de pedidos                  |
+| 6  | `produtos.py`   | Clara Luiza       | Cadastro de produtos (CRUD)                        |
+| 7  | `clientes.py`   | Gabriel           | Cadastro de clientes (CRUD)                        |
 
-Cada módulo precisa ter a função de submenu que o `main.py` chama:
+Cada módulo tem a função de submenu que o `main.py` chama:
 `menu_produtos()`, `menu_clientes()`, `menu_estoque()`, `menu_pedidos()`, `menu_fila()` e
 `menu_relatorios()`.
+
+## Regras combinadas entre os módulos
+
+**Status de um pedido**
+
+```
+aguardando --(entra na fila)--> na fila --(chamar proximo)--> separado
+     |                             |
+     +---------(cancelar)----------+----> cancelado
+```
+
+- Só pedidos `aguardando` entram na fila.
+- Pedidos `aguardando` ou `na fila` podem ser cancelados; se estiver na fila, ele sai dela.
+- Pedido `separado` não pode mais ser cancelado.
+- Remover um pedido da fila (menu Fila) faz ele voltar para `aguardando`.
+
+**Baixa de estoque**
+
+- O estoque é descontado quando o pedido é **separado** (Fila → Chamar próximo).
+- Se faltar algum produto, o sistema mostra o que falta e o pedido continua no início da fila,
+  sem descontar nada. Depois de dar entrada no estoque, é só chamar o próximo de novo.
+- Clientes e produtos que aparecem em algum pedido não podem ser removidos do cadastro.
 
 ## Diagrama de blocos
 
