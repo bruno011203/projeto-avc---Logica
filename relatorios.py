@@ -129,7 +129,7 @@ def relatorio_pedidos_por_cliente(codigo_cliente):
         if pedido["status"] != "cancelado":
             soma += valor
         print(f"{pedido['numero']:<8}{pedido['status']:<14}"
-              f'{len(pedido['itens']):>6}{_moeda(valor):>16}')
+              f"{len(pedido['itens']):>6}{_moeda(valor):>16}")
     print("-" * 44)
     print(f"Total (sem cancelados): {_moeda(soma)}")
 
